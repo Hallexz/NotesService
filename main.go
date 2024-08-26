@@ -3,49 +3,34 @@ package main
 import (
 	"NotesService/auntification"
 	"NotesService/notes"
-	"github.com/go-redis/redis"
 	"log"
 	"net/http"
-	"strconv"
+	"os"
 )
 
-var (
-	session     *auntification.Session
-	redisClient *redis.Client
-)
+func setupLogger() *log.Logger {
+	logFile, err := os.OpenFile("app.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatal("Failed to open log file:", err)
+	}
+	return log.New(logFile, "", log.Ldate|log.Ltime|log.Lshortfile)
+}
 
 func main() {
-	db, err := notes.SetupDatabase()
+	logger := setupLogger()
+
+	db, err := notes.SetupDatabase(logger)
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal("Failed to setup database:", err)
 	}
 	defer db.Close()
 
+	auntification.SetLogger(logger)
 	authService := auntification.NewAuthService(db)
 
-	redisClient, err = auntification.SetupRedis("localhost:6379", "", 0)
-	if err != nil {
-		log.Fatal("Failed to connect to Redis:", err)
-	}
-	session = auntification.NewSession(redisClient)
-
 	http.HandleFunc("/auth", authService.AuthenticateHandler)
-	http.HandleFunc("/notes", func(w http.ResponseWriter, r *http.Request) {
-		cookie, err := r.Cookie("session")
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusUnauthorized)
-			return
-		}
-		sessionID := cookie.Value
-		user, err := session.GetUser(sessionID)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusUnauthorized)
-			return
-		}
-		// Использовать информацию о пользователе
-		r.Header.Set("UserID", strconv.Itoa(user.ID))
-	})
+	http.Handle("/notes", auntification.JWTAuthMiddleware(http.HandlerFunc(notes.CreateNoteHandler(db, logger))))
 
-	log.Println("Server is running on :9080")
-	log.Fatal(http.ListenAndServe(":9080", nil))
+	logger.Println("Server is running on :9080")
+	logger.Fatal(http.ListenAndServe(":9080", nil))
 }

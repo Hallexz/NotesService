@@ -8,7 +8,7 @@ type User struct {
 	Password string `json:"-"`
 }
 
-func (u *User) Validatee() error {
+func (u *User) Validate() error {
 	if u.Username == "" || u.Password == "" {
 		return errors.New("неправильное имя или пароль")
 	}

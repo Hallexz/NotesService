@@ -3,7 +3,14 @@ package auntification
 import (
 	"database/sql"
 	"errors"
+	"log"
 )
+
+var logger *log.Logger
+
+func SetLogger(l *log.Logger) {
+	logger = l
+}
 
 type AuthService struct {
 	db *sql.DB
