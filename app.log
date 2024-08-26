@@ -1,0 +1,19 @@
+2024/08/26 19:26:25 BD.go:15: Setting up database connection
+2024/08/26 19:26:25 BD.go:22: Database connection established successfully
+2024/08/26 19:26:25 main.go:34: Server is running on :9080
+2024/08/26 19:26:27 middleware.go:13: Checking JWT token
+2024/08/26 19:26:27 notes.go:19: Received request to create note
+2024/08/26 19:26:27 notes.go:48: Checking spelling for title
+2024/08/26 19:26:27 yandex.go:25: Starting spell check for text: Привеет
+2024/08/26 19:26:28 yandex.go:50: Received 0 spell check results
+2024/08/26 19:26:28 yandex.go:69: Spell check completed. Corrected text: Привеет
+2024/08/26 19:26:28 notes.go:57: Checking spelling for content
+2024/08/26 19:26:28 yandex.go:25: Starting spell check for text: Привеет как дила.
+2024/08/26 19:26:28 yandex.go:50: Received 2 spell check results
+2024/08/26 19:26:28 yandex.go:61: Correcting word 'дила' to 'дела' at position 12
+2024/08/26 19:26:28 yandex.go:61: Correcting word 'Привеет' to 'Привет' at position 0
+2024/08/26 19:26:28 yandex.go:69: Spell check completed. Corrected text: Привет как дела.
+2024/08/26 19:26:28 notes.go:66: Creating note in database
+2024/08/26 19:26:28 BD.go:37: Creating new note for user 5
+2024/08/26 19:26:28 BD.go:47: Note created successfully with ID: 16
+2024/08/26 19:26:28 notes.go:74: Note created successfully with ID: 16
