@@ -44,7 +44,7 @@ jobs:
       - name: Build and push Docker image for db
         uses: docker/build-push-action@v4
         with:
-          context: .
+          context: ./db
           file: ./db/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/db:latest
