@@ -1,9 +1,17 @@
 version: '3'
 
+volumes:
+  init-db:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: ./db
+
 services:
   notes-service:
     build:
-      context: Dockerfile
+      context: .
       dockerfile: Dockerfile
     ports:
       - "9080:9080"
@@ -12,11 +20,11 @@ services:
 
   postgres-db:
     build:
-      context: db/Dockerfile
+      context: ./db
       dockerfile: Dockerfile
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_DB=notes
+      - POSTGRES_HOST_AUTH_METHOD=trust
     volumes:
-      - db/init.sql:/docker-entrypoint-initdb.d/init.sql
-
+      - init-db:/docker-entrypoint-initdb.d/
