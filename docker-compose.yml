@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+  notes-service:
+    build:
+      context: Dockerfile
+      dockerfile: Dockerfile
+    ports:
+      - "9080:9080"
+    depends_on:
+      - postgres-db
+
+  postgres-db:
+    build:
+      context: db/Dockerfile
+      dockerfile: Dockerfile
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=notes
+    volumes:
+      - db/init.sql:/docker-entrypoint-initdb.d/init.sql
+
