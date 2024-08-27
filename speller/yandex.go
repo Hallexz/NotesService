@@ -9,7 +9,7 @@ import (
 	"net/url"
 )
 
-const yandexSpellerURL = "https://speller.yandex.net/services/spellservice.json/checkText"
+var YandexSpellerURL = "https://speller.yandex.net/services/spellservice.json/checkText"
 
 type SpellCheckResult struct {
 	Code int      `json:"code"`
@@ -26,9 +26,9 @@ func CheckSpelling(text string, logger *log.Logger) (string, error) {
 
 	params := url.Values{}
 	params.Add("text", text)
-	params.Add("lang", "ru,en") // Проверка на русском и английском языках
+	params.Add("lang", "ru,en")
 
-	resp, err := http.PostForm(yandexSpellerURL, params)
+	resp, err := http.PostForm(YandexSpellerURL, params)
 	if err != nil {
 		logger.Printf("Failed to send request to Yandex.Speller: %v", err)
 		return "", fmt.Errorf("failed to send request to Yandex.Speller: %w", err)
@@ -49,19 +49,27 @@ func CheckSpelling(text string, logger *log.Logger) (string, error) {
 
 	logger.Printf("Received %d spell check results", len(results))
 
-	correctedText := []rune(text) // Используем []rune, чтобы корректно работать с юникодными символами
+	correctedText := []rune(text)
+	textLength := len(correctedText)
+
 	for i := len(results) - 1; i >= 0; i-- {
 		result := results[i]
 		if len(result.S) > 0 {
-			// Исправляем слово, начиная с позиции Pos и до Pos + Len
-			correctedWord := result.S[0]
 			startPos := result.Pos
 			endPos := result.Pos + result.Len
 
-			logger.Printf("Correcting word '%s' to '%s' at position %d", result.Word, correctedWord, startPos)
+			// Validate positions
+			if startPos < 0 || endPos > textLength || startPos > endPos {
+				logger.Printf("Invalid position range for word '%s': [%d:%d], skipping", result.Word, startPos, endPos)
+				continue
+			}
 
-			// Заменяем слово
-			correctedText = append(correctedText[:startPos], append([]rune(correctedWord), correctedText[endPos:]...)...)
+			correctedWord := []rune(result.S[0])
+			logger.Printf("Correcting word '%s' to '%s' at position %d", result.Word, string(correctedWord), startPos)
+
+			// Replace the word
+			correctedText = append(correctedText[:startPos], append(correctedWord, correctedText[endPos:]...)...)
+			textLength = len(correctedText) // Update text length after modification
 		}
 	}
 

@@ -32,19 +32,22 @@ type Note struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
+type NoteService interface {
+	CreateNote(db *sql.DB, userID int, title, content string) (int, error)
+}
+
+type NoteServiceImpl struct{}
+
 // Добавление заметок
-func CreateNote(db *sql.DB, userID int, title, content string) (int, error) {
-	logger.Printf("Creating new note for user %d", userID)
+func (s *NoteServiceImpl) CreateNote(db *sql.DB, userID int, title, content string) (int, error) {
 	var noteID int
 	err := db.QueryRow(`
         INSERT INTO notes (user_id, title, content, created_at, updated_at)
         VALUES ($1, $2, $3, NOW(), NOW())
         RETURNING id`, userID, title, content).Scan(&noteID)
 	if err != nil {
-		logger.Printf("Failed to create note: %v", err)
 		return 0, err
 	}
-	logger.Printf("Note created successfully with ID: %d", noteID)
 	return noteID, nil
 }
 

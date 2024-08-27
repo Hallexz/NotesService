@@ -28,8 +28,13 @@ func main() {
 	auntification.SetLogger(logger)
 	authService := auntification.NewAuthService(db)
 
+	// Create an instance of NoteServiceImpl
+	noteService := &notes.NoteServiceImpl{}
+
+	// Now pass noteService as the third argument
 	http.HandleFunc("/auth", authService.AuthenticateHandler)
-	http.Handle("/notes", auntification.JWTAuthMiddleware(http.HandlerFunc(notes.CreateNoteHandler(db, logger))))
+	http.Handle("/notes", auntification.JWTAuthMiddleware(notes.CreateNoteHandler(db, logger, noteService)))
+	http.Handle("/getNotes", auntification.JWTAuthMiddleware(notes.GetNotesHandler(db)))
 
 	logger.Println("Server is running on :9080")
 	logger.Fatal(http.ListenAndServe(":9080", nil))

@@ -14,7 +14,7 @@ type CreateNoteRequest struct {
 	Content string `json:"content"`
 }
 
-func CreateNoteHandler(db *sql.DB, logger *log.Logger) http.HandlerFunc {
+func CreateNoteHandler(db *sql.DB, logger *log.Logger, noteService NoteService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		logger.Printf("Received request to create note")
 
@@ -63,8 +63,8 @@ func CreateNoteHandler(db *sql.DB, logger *log.Logger) http.HandlerFunc {
 		}
 		req.Content = correctedContent
 
-		logger.Printf("Creating note in database")
-		noteID, err := CreateNote(db, userIDInt, req.Title, req.Content)
+		logger.Printf("Creating note in database with Title: %s, Content: %s", req.Title, req.Content)
+		noteID, err := noteService.CreateNote(db, userIDInt, req.Title, req.Content)
 		if err != nil {
 			logger.Printf("Failed to create note: %v", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)

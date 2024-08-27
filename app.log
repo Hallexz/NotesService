@@ -17,3 +17,6 @@
 2024/08/26 19:26:28 BD.go:37: Creating new note for user 5
 2024/08/26 19:26:28 BD.go:47: Note created successfully with ID: 16
 2024/08/26 19:26:28 notes.go:74: Note created successfully with ID: 16
+2024/08/27 12:17:42 BD.go:15: Setting up database connection
+2024/08/27 12:17:42 BD.go:22: Database connection established successfully
+2024/08/27 12:17:42 main.go:39: Server is running on :9080
